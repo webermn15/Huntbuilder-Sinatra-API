@@ -3,8 +3,6 @@ class ApplicationController < Sinatra::Base
 	require 'bundler'
 	Bundler.require
 
-	register Sinatra::CrossOrigin
-
 	ActiveRecord::Base.establish_connection(
  		:adapter => 'postgresql', 
  		:database => 'hunttest'
