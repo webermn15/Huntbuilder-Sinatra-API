@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'sinatra/activerecord'
 
+
 #Controllers
 require './controllers/ApplicationController'
 require './controllers/HuntController'

@@ -21,6 +21,11 @@ class ApplicationController < Sinatra::Base
 		response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
 	end
 
+	include BCrypt
+
+	use Rack::MethodOverride  
+	set :method_override, true
+
 	not_found do 
 		halt 404
 	end

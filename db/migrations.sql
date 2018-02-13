@@ -4,7 +4,9 @@ CREATE DATABASE hunttest;
 
 CREATE TABLE users(
 	id SERIAL PRIMARY KEY,
-	username VARCHAR(32)
+	username VARCHAR(32),
+	password_digest VARCHAR(60),
+	creation_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE hunts(
