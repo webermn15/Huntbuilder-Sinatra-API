@@ -57,7 +57,7 @@ class UserController < ApplicationController
 
 	post '/qrtest' do 
 		# mailgun setup
-		mg_client = Mailgun::Client.new 'key-31a5a5277d5cf84faa7a872862674e90'
+		mg_client = Mailgun::Client.new ''
 		mb_obj = Mailgun::MessageBuilder.new()
 		# mailgun send options
 		mb_obj.from("webermn15@gmail.com", {"first" => "Michael", "last" => "Weber"})
@@ -83,7 +83,7 @@ class UserController < ApplicationController
 
 			mb_obj.add_attachment("./#{value}.png")
 		end
-		result = mg_client.send_message('sandboxfb7ea545fb9a434b878152e709415763.mailgun.org', mb_obj)
+		result = mg_client.send_message('', mb_obj)
 		puts arr
 		
 	end
