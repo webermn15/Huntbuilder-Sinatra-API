@@ -6,6 +6,7 @@ CREATE TABLE users(
 	id SERIAL PRIMARY KEY,
 	username VARCHAR(32),
 	password_digest VARCHAR(60),
+	email VARCHAR(32),
 	creation_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
