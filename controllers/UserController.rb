@@ -1,22 +1,7 @@
 class UserController < ApplicationController 
 
-	get '/' do 
-		@users = User.all
-		@users.to_json
-	end
-
-	get '/:id/hunts' do 
-		@hunts = Hunt.where user_id: params[:id]
-		@hunts.to_json
-	end
-
-
-
-
-
 	post '/login' do
 		@pw = params[:password]
-
 		@user = User.find_by(username: params[:username])
 		if @user && @user.authenticate(@pw)
 			session[:username] = @user.username
@@ -49,6 +34,22 @@ class UserController < ApplicationController
 		session[:user_id] = nil
 		session[:message] = "You are now logged out."
 	end
+
+	get '/profile' do 
+		@user = User.find_by(id: 1)
+		@hunts = Hunt.where user_id: 1
+
+		resp = {
+			user: @user,
+			user_hunts: @hunts
+		}
+		resp.to_json
+	end
+
+
+
+
+
 
 
 
@@ -87,6 +88,5 @@ class UserController < ApplicationController
 		puts arr
 		
 	end
-
 
 end

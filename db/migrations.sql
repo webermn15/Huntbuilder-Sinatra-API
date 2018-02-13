@@ -13,6 +13,7 @@ CREATE TABLE users(
 CREATE TABLE hunts(
 	id SERIAL PRIMARY KEY,
 	title VARCHAR(255),
+	description VARCHAR(255),
 	user_id INT REFERENCES users(id),
 	hints TEXT[],
 	random_hint BOOLEAN DEFAULT 'f',
@@ -29,5 +30,5 @@ CREATE TABLE participants(
 	hunt_id INT REFERENCES hunts(id),
 	hints_found TEXT[],
 	completed BOOLEAN DEFAULT 'f',
-	start_date TIMESTAMP WITH TIME ZONE
+	start_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
