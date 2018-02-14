@@ -5,6 +5,11 @@ class HuntController < ApplicationController
 		@hunts.to_json
 	end
 
+	get '/:id/view' do 
+		@hunt = Hunt.find_by_id params[:id]
+		@hunt.to_json
+	end
+
 	get '/:id/participants' do 
 		playernames = Array.new
 		@participants = Participant.where(hunt_id: params[:id])
@@ -15,42 +20,56 @@ class HuntController < ApplicationController
 		playernames.to_json
 	end
 
-	get '/test' do 
-		hints = ["first hint", "second hint", "third hint", "fourth hint"]
+	post '/search' do 
+		search_term = params[:keyword]
+		descrip_results = Hunt.where("description like ?", "%" + search_term + "%")
+		title_results = Hunt.where("title like ?", "%" + search_term + "%")
+		resp = {
+			description_search: descrip_results,
+			title_search: title_results
+		}.to_json
+	end
 
-		hints.for_each
+	post '/new' do 
 
+		@hunt = Hunt.new
+		obj = params.symbolize_keys!
+		@hunt.title = obj[:title]
+		@hunt.description = obj[:description]
+		@hunt.user_id = 1 #will use session[:user_id]
 
+		# formatting hints array and injecting victory code at the end
+		parsed_hints = JSON.parse obj[:hints]
+		@hunt.hints = parsed_hints
+		range = [*'0'..'9',*'a'..'z']
+		vict_code = Array.new(10){ range.sample }.join
+		@hunt.victory_code = vict_code
+		@hunt.hints.push(vict_code)
 
-		qrcode = RQRCode::QRCode.new("#{@hint}")
-		# With default options specified explicitly
-		png = qrcode.as_png(
-          	resize_gte_to: false,
-          	resize_exactly_to: false,
-          	fill: 'white',
-          	color: 'black',
-          	size: 120,
-          	border_modules: 4,
-          	module_px_size: 6,
-          	file: "./github-qrcode-test.png"
-          	)
-		IO.write("./github-qrcode-test.png", png.to_s)
-		qrcode.to_json
+		# location data this may change
+		@hunt.lat = obj[:lat]
+		@hunt.long = obj[:long]
+		@hunt.zoom = obj[:zoom]
+		@hunt.save
+		@hunt.to_json
+
 	end
 
 
-	post '/qrtest' do 
+	get '/:id/printcodes' do 
 		# mailgun setup
-		mg_client = Mailgun::Client.new 'key-31a5a5277d5cf84faa7a872862674e90'
+		mg_client = Mailgun::Client.new ''
 		mb_obj = Mailgun::MessageBuilder.new()
-		# mailgun send options
-		mb_obj.from("webermn15@gmail.com", {"first" => "Michael", "last" => "Weber"})
-		mb_obj.add_recipient(:to, "webermn15@gmail.com", {"first" => "Michael", "last" => "Weber"})
+		# mailgun send options -- will use session data for all this, hardcoding now for testing purposes
+		mb_obj.from("webermn15@gmail.com", {"first" => "Michael", "last" => "Weber"}) #change this to huntbuilder once off sandbox server
+		mb_obj.add_recipient(:to, "webermn15@gmail.com", {"first" => "Michael", "last" => "Weber"}) # session[:email], session[:username]
 		mb_obj.subject("Hunt Builder QR code printouts")
 		mb_obj.body_text("Attached you will find QR code pngs named by their hint")
 
-		arr = params.values
-		arr.each do |value|
+		@hunt = Hunt.find_by_id params[:id]
+		hints = @hunt[:hints]
+
+		hints.each do |value|
 			qrcode = RQRCode::QRCode.new("#{value}")
 
 			png = qrcode.as_png(
@@ -66,31 +85,13 @@ class HuntController < ApplicationController
 			IO.write("./#{value}.png", png.to_s)
 
 			mb_obj.add_attachment("./#{value}.png")
+			File.delete("./#{value}.png")
 		end
-		result = mg_client.send_message('sandboxfb7ea545fb9a434b878152e709415763.mailgun.org', mb_obj)
-		puts arr
-		
+
+		result = mg_client.send_message('', mb_obj)
+		p hints
 	end
 
-
-
-	get '/email' do
-		mg_client = Mailgun::Client.new 'key-31a5a5277d5cf84faa7a872862674e90'
-		mb_obj = Mailgun::MessageBuilder.new()
-
-		mb_obj.from("webermn15@gmail.com", {"first" => "Michael", "last" => "Weber"})
-
-		mb_obj.add_recipient(:to, "webermn15@gmail.com", {"first" => "Michael", "last" => "Weber"})
-
-		mb_obj.subject("Hunt Builder QR code printouts")
-
-		mb_obj.body_text("Attached you will find QR code pngs named by their hint")
-
-		mb_obj.add_attachment("./github-qrcode-test.png", "QR1.png")
-
-		result = mg_client.send_message('sandboxfb7ea545fb9a434b878152e709415763.mailgun.org', mb_obj)
-		puts result.body.to_s
-	end
 
 end
 
