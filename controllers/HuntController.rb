@@ -1,13 +1,29 @@
 class HuntController < ApplicationController 
 
+	get '/bigtest' do 
+		pp 'it actually worked lmao'
+	end
+
+
+
+
+
+	# view all hunts
 	get '/' do 
 		@hunts = Hunt.all
 		@hunts.to_json
 	end
 
+	# view one hunt
 	get '/:id/view' do 
 		@hunt = Hunt.find_by_id params[:id]
 		@hunt.to_json
+	end
+
+	# view all participants of a hunt
+	get '/:id/participants' do 
+		@participants = Participant.where hunt_id: params[:id]
+		@participants.to_json
 	end
 
 	# post route for when a user selects and begins a hunt
@@ -85,6 +101,8 @@ class HuntController < ApplicationController
 
 		@hunt = Hunt.find_by_id params[:id]
 		hints = @hunt[:hints]
+		num_str_arr = ["#{@hunt[:title]} - one","#{@hunt[:title]} - two","#{@hunt[:title]} - three","#{@hunt[:title]} - four","#{@hunt[:title]} - five","#{@hunt[:title]} - six","#{@hunt[:title]} - seven","#{@hunt[:title]} - eight","#{@hunt[:title]} - nine","#{@hunt[:title]} - ten"]
+		inc = 0
 
 		hints.each do |value|
 			qrcode = RQRCode::QRCode.new("#{value}")
@@ -97,12 +115,13 @@ class HuntController < ApplicationController
 	          	size: 240,
 	          	border_modules: 4,
 	          	module_px_size: 6,
-	          	file: "./#{value}.png"
+	          	file: "./#{num_str_arr[inc]}.png"
 	          	)
-			IO.write("./#{value}.png", png.to_s)
+			IO.write("./#{num_str_arr[inc]}.png", png.to_s)
 
-			mb_obj.add_attachment("./#{value}.png")
-			File.delete("./#{value}.png")
+			mb_obj.add_attachment("./#{num_str_arr[inc]}.png")
+			File.delete("./#{num_str_arr[inc]}.png")
+			inc = inc + 1
 		end
 
 		result = mg_client.send_message('', mb_obj)
@@ -111,26 +130,6 @@ class HuntController < ApplicationController
 
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
