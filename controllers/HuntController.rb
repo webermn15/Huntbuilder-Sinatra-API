@@ -12,14 +12,20 @@ class HuntController < ApplicationController
 
 	# post route for when a user selects and begins a hunt
 	post '/:id/play' do 
+		@hunt = Hunt.find_by_id(params[:id])
 		@participant = Participant.new
-		
+		@participant.user_id = 1 # will use sessions later
+		@participant.hunt_id = params[:id]
+		@participant.hints_found = [@hunt[:hints][0]]
+		@participant.completed = true
+		@participant.save
+		@participant.to_json
 	end
 
 	# simple get route for displaying participants who have completed a hunt
-	get '/:id/participants' do 
+	get '/:id/completed' do 
 		playernames = Array.new
-		@participants = Participant.where(hunt_id: params[:id] && completed: true)
+		@participants = Participant.where("hunt_id = ? AND completed = ?", params[:id], 't')
 		@participants.each do |player|
 			this_player = (User.where id: player[:user_id])
 			playernames.push(this_player[0].username)
