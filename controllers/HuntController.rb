@@ -10,9 +10,16 @@ class HuntController < ApplicationController
 		@hunt.to_json
 	end
 
+	# post route for when a user selects and begins a hunt
+	post '/:id/play' do 
+		@participant = Participant.new
+		
+	end
+
+	# simple get route for displaying participants who have completed a hunt
 	get '/:id/participants' do 
 		playernames = Array.new
-		@participants = Participant.where(hunt_id: params[:id])
+		@participants = Participant.where(hunt_id: params[:id] && completed: true)
 		@participants.each do |player|
 			this_player = (User.where id: player[:user_id])
 			playernames.push(this_player[0].username)
@@ -20,6 +27,7 @@ class HuntController < ApplicationController
 		playernames.to_json
 	end
 
+	# search bar logic for the landing pages 'find hunts' functionality
 	post '/search' do 
 		search_term = params[:keyword]
 		descrip_results = Hunt.where("description like ?", "%" + search_term + "%")
@@ -30,13 +38,15 @@ class HuntController < ApplicationController
 		}.to_json
 	end
 
+
+	# hunt creation route, u already know
 	post '/new' do 
 
 		@hunt = Hunt.new
 		obj = params.symbolize_keys!
 		@hunt.title = obj[:title]
 		@hunt.description = obj[:description]
-		@hunt.user_id = 1 #will use session[:user_id]
+		@hunt.user_id = 1 # will use session[:user_id]
 
 		# formatting hints array and injecting victory code at the end
 		parsed_hints = JSON.parse obj[:hints]
@@ -55,7 +65,8 @@ class HuntController < ApplicationController
 
 	end
 
-
+	# route used to generate QR codes, save them, attach them to email, send to user, and then delete the saved PNG QR codes afterwards
+	# needs to get set up using session data
 	get '/:id/printcodes' do 
 		# mailgun setup
 		mg_client = Mailgun::Client.new ''
