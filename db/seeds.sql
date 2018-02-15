@@ -9,3 +9,5 @@ INSERT INTO participants (user_id, hunt_id, hints_found) VALUES (2, 2, '{"hinton
 INSERT INTO participants (user_id, hunt_id, hints_found) VALUES (2, 3, '{"hintone"}');
 INSERT INTO participants (user_id, hunt_id, hints_found) VALUES (3, 1, '{"hintone"}');
 INSERT INTO participants (user_id, hunt_id, hints_found) VALUES (3, 3, '{"hintone"}');
+
+INSERT INTO postgistest (latlong) VALUES ('SRID=4326;POINT(41.850691 -87.634049)');

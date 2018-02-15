@@ -3,6 +3,8 @@ class ApplicationController < Sinatra::Base
 	require 'bundler'
 	Bundler.require
 
+	register Sinatra::CrossOrigin
+
 	ActiveRecord::Base.establish_connection(
  		:adapter => 'postgresql', 
  		:database => 'hunttest'
@@ -23,7 +25,7 @@ class ApplicationController < Sinatra::Base
 
 	include BCrypt
 
-	use Rack::MethodOverride  
+	use Rack::MethodOverride
 	set :method_override, true
 
 	not_found do 

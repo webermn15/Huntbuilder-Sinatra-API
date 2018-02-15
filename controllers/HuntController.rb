@@ -25,7 +25,8 @@ class HuntController < ApplicationController
 		# user_loc.map! {|i| i.round}
 
 		# # this some code that rounds user lat and the hunt lat stored in it's table and compares them to return nearby results
-		# # but i can't get it to work for both lat and long at the same time :(
+		# # but i can't get it to work for both lat and long at the same time :( wait actually i can using Postgis, but I need to set up
+		# # the activerecord postgis adapter gem
 		# @hunts = Hunt.find_by_sql("SELECT * FROM hunts WHERE ROUND(lat, 0) = #{user_loc[0]}")
 		# @hunts.to_json
 

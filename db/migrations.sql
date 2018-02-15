@@ -32,3 +32,10 @@ CREATE TABLE participants(
 	completed BOOLEAN DEFAULT 'false',
 	start_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
+
+
+
+CREATE TABLE postgistest(
+	id SERIAL PRIMARY KEY,
+	latlong GEOGRAPHY
+);
