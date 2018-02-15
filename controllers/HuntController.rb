@@ -1,17 +1,52 @@
 class HuntController < ApplicationController 
 
-	get '/bigtest' do 
-		pp 'it actually worked lmao'
+	# distance calculation function
+	def distance loc1, loc2
+		rad_per_deg = Math::PI/180  # PI / 180
+		rkm = 6371                  # Earth radius in kilometers
+		rm = rkm * 1000             # Radius in meters
+
+		dlat_rad = (loc2[0]-loc1[0]) * rad_per_deg  # Delta, converted to rad
+		dlon_rad = (loc2[1]-loc1[1]) * rad_per_deg
+
+		lat1_rad, lon1_rad = loc1.map {|i| i * rad_per_deg }
+		lat2_rad, lon2_rad = loc2.map {|i| i * rad_per_deg }
+
+		a = Math.sin(dlat_rad/2)**2 + Math.cos(lat1_rad) * Math.cos(lat2_rad) * Math.sin(dlon_rad/2)**2
+		c = 2 * Math::atan2(Math::sqrt(a), Math::sqrt(1-a))
+
+		rm * c # Delta in meters
 	end
-
-
-
-
 
 	# view all hunts
 	get '/' do 
-		@hunts = Hunt.all
-		@hunts.to_json
+		# # declares user location (session!!! eventually) and rounds it for use in activerecord query below
+		user_loc = [50.2, -89.5]# will use session data to get user location or something i dont know man
+		# user_loc.map! {|i| i.round}
+
+		# # this some code that rounds user lat and the hunt lat stored in it's table and compares them to return nearby results
+		# # but i can't get it to work for both lat and long at the same time :(
+		# @hunts = Hunt.find_by_sql("SELECT * FROM hunts WHERE ROUND(lat, 0) = #{user_loc[0]}")
+		# @hunts.to_json
+
+		@hunts = Hunt.all.to_json
+
+		distance_from = Array.new
+
+		hunts = JSON.parse(@hunts).each do |hunt| 
+			hunt.symbolize_keys!
+
+			hunt_loc = [hunt[:lat].to_f, hunt[:long].to_f]
+
+			user_hunt_distance = distance(user_loc, hunt_loc)
+
+			test_hash = [hunt,user_hunt_distance]
+
+			distance_from.push(test_hash)
+		end
+		distance_from.sort! {|a,b| a[1] <=> b[1]}
+		pp distance_from
+		'yo'
 	end
 
 	# view one hunt
@@ -76,7 +111,7 @@ class HuntController < ApplicationController
 		range = [*'0'..'9',*'a'..'z']
 		vict_code = Array.new(10){ range.sample }.join
 		@hunt.victory_code = vict_code
-		@hunt.hints.push(vict_code)
+		@hunt.hints.push("Congratulations! Enter this code to complete #{@hunt.title}! => " + vict_code)
 
 		# location data this may change
 		@hunt.lat = obj[:lat]
@@ -101,7 +136,7 @@ class HuntController < ApplicationController
 
 		@hunt = Hunt.find_by_id params[:id]
 		hints = @hunt[:hints]
-		num_str_arr = ["#{@hunt[:title]} - one","#{@hunt[:title]} - two","#{@hunt[:title]} - three","#{@hunt[:title]} - four","#{@hunt[:title]} - five","#{@hunt[:title]} - six","#{@hunt[:title]} - seven","#{@hunt[:title]} - eight","#{@hunt[:title]} - nine","#{@hunt[:title]} - ten"]
+		num_str_arr = ["#{@hunt[:title]} - first hint!","#{@hunt[:title]} - second hint!","#{@hunt[:title]} - third hint!","#{@hunt[:title]} - fourth hint!","#{@hunt[:title]} - fifth hint!","#{@hunt[:title]} - sixth hint!","#{@hunt[:title]} - seventh hint!","#{@hunt[:title]} - eighth hint!","#{@hunt[:title]} - ninth hint!","#{@hunt[:title]} - tenth hint!"]
 		inc = 0
 
 		hints.each do |value|
@@ -127,7 +162,6 @@ class HuntController < ApplicationController
 		result = mg_client.send_message('', mb_obj)
 		p hints
 	end
-
 
 end
 

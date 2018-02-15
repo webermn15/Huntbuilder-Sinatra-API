@@ -17,8 +17,8 @@ CREATE TABLE hunts(
 	user_id INT REFERENCES users(id),
 	hints TEXT[],
 	victory_code VARCHAR(10),
-	lat REAL NOT NULL,
-	long REAL NOT NULL,
+	lat NUMERIC NOT NULL,
+	long NUMERIC NOT NULL,
 	zoom INT NOT NULL,
 	active BOOLEAN DEFAULT 'true',
 	creation_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
