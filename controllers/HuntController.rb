@@ -146,7 +146,7 @@ class HuntController < ApplicationController
 	# needs to get set up using session data
 	get '/:id/emailcodes' do 
 		# mailgun setup
-		mg_client = Mailgun::Client.new ''
+		mg_client = Mailgun::Client.new MAILKEY
 		mb_obj = Mailgun::MessageBuilder.new()
 		# mailgun send options -- will use session data for all this, hardcoding now for testing purposes
 		mb_obj.from("webermn15@gmail.com", {"first" => "Michael", "last" => "Weber"}) #change this to huntbuilder once off sandbox server
@@ -179,7 +179,7 @@ class HuntController < ApplicationController
 			inc = inc + 1
 		end
 
-		result = mg_client.send_message('', mb_obj)
+		result = mg_client.send_message('sandboxfb7ea545fb9a434b878152e709415763.mailgun.org', mb_obj)
 		p hints
 	end
 

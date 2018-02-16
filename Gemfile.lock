@@ -19,6 +19,7 @@ GEM
     concurrent-ruby (1.0.5)
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
+    dotenv (2.2.1)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
     i18n (0.9.4)
@@ -69,6 +70,7 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt
+  dotenv (~> 2.1, >= 2.1.1)
   json
   mailgun-ruby (~> 1.1.6)
   pg (= 0.21)
