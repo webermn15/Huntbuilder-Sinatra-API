@@ -3,14 +3,11 @@ class ApplicationController < Sinatra::Base
 	require 'bundler'
 	Bundler.require
 
+	require './config/environments'
+
 	enable :sessions
 
 	register Sinatra::CrossOrigin
-
-	ActiveRecord::Base.establish_connection(
- 		:adapter => 'postgresql', 
- 		:database => 'hunttest'
-	)
 
 	configure do
 		enable :cross_origin
