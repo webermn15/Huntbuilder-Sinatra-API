@@ -40,6 +40,7 @@ GEM
     rack (2.0.4)
     rack-protection (2.0.0)
       rack
+    rake (12.3.0)
     rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
@@ -72,6 +73,7 @@ DEPENDENCIES
   mailgun-ruby (~> 1.1.6)
   pg (= 0.21)
   pry
+  rake
   rqrcode (~> 0.10.1)
   sinatra
   sinatra-activerecord

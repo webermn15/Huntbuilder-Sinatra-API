@@ -56,8 +56,11 @@ class HuntController < ApplicationController
 
 	# view one hunt
 	get '/:id/view' do 
+		user_id = session[:user_id]
 		@hunt = Hunt.find_by_id params[:id]
 		@creator = User.find_by_id @hunt.user_id
+		@participant = Participant.where("hunt_id = ? AND user_id = ?", @hunt.id, user_id).to_json
+		pp @participant
 		resp = {
 			hunt: @hunt,
 			creator: @creator
@@ -117,7 +120,6 @@ class HuntController < ApplicationController
 
 	# hunt creation route, u already know
 	post '/new' do 
-
 		@hunt = Hunt.new
 		obj = params.symbolize_keys!
 		@hunt.title = obj[:title]
@@ -125,7 +127,7 @@ class HuntController < ApplicationController
 		@hunt.user_id = 1 # will use session[:user_id]
 
 		# formatting hints array and injecting victory code at the end
-		parsed_hints = JSON.parse obj[:hints]
+		parsed_hints = obj[:hints]
 		@hunt.hints = parsed_hints
 		range = [*'0'..'9',*'a'..'z']
 		vict_code = Array.new(10){ range.sample }.join
@@ -133,12 +135,11 @@ class HuntController < ApplicationController
 		@hunt.hints.push("Congratulations! Enter this code to complete #{@hunt.title}! => " + vict_code)
 
 		# location data this may change
-		@hunt.lat = obj[:lat]
-		@hunt.long = obj[:long]
+		@hunt.lat = obj[:latitutde]
+		@hunt.long = obj[:longitude]
 		@hunt.zoom = obj[:zoom]
 		@hunt.save
 		@hunt.to_json
-
 	end
 
 	# route used to generate QR codes, save them, attach them to email, send to user, and then delete the saved PNG QR codes afterwards
