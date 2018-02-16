@@ -1,17 +1,23 @@
 class UserController < ApplicationController 
 
 	post '/login' do
+		success = nil
 		@pw = params[:password]
 		@user = User.find_by(username: params[:username])
 		if @user && @user.authenticate(@pw)
+			success = true
 			session[:username] = @user.username
 			session[:logged_in] = true
 			session[:user_id] = @user.id
 			session[:message] = "Logged in as #{@user.username}"
 		else
+			success = false
 			session[:message] = "Invalid username or password"
 		end
-
+		resp = {
+			message: session[:message],
+			success: success
+		}.to_json
 	end
 
 	post '/register' do
@@ -24,7 +30,9 @@ class UserController < ApplicationController
 		session[:username] = @user.username
 		session[:user_id] = @user.id
 		session[:message] = "You are now logged in."
-		p session[:message]
+		resp = {
+			message: session[:message],
+		}.to_json
 	end
 
 
@@ -43,7 +51,7 @@ class UserController < ApplicationController
 
 		resp = {
 			user: @user,
-			user_hunts: @hunts
+			hunts: @hunts
 		}
 		resp.to_json
 	end

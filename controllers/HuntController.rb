@@ -18,7 +18,7 @@ class HuntController < ApplicationController
 		rm * c # Delta in meters
 	end
 
-	# view all hunts
+	# view all hunts & sort them by distance
 	get '/' do 
 		# # declares user location (session!!! eventually) and rounds it for use in activerecord query below
 		user_loc = [50.2, -89.5]# will use session data to get user location or something i dont know man
@@ -46,14 +46,22 @@ class HuntController < ApplicationController
 			distance_from.push(test_hash)
 		end
 		distance_from.sort! {|a,b| a[1] <=> b[1]}
-		pp distance_from
-		'yo'
+		distance_from.map! {|i| i.shift}
+
+		resp = {
+			sorted_closest: distance_from,
+			unsorted: hunts
+		}.to_json
 	end
 
 	# view one hunt
 	get '/:id/view' do 
 		@hunt = Hunt.find_by_id params[:id]
-		@hunt.to_json
+		@creator = User.find_by_id @hunt.user_id
+		resp = {
+			hunt: @hunt,
+			creator: @creator
+		}.to_json
 	end
 
 	# view all participants of a hunt
@@ -87,12 +95,22 @@ class HuntController < ApplicationController
 
 	# search bar logic for the landing pages 'find hunts' functionality
 	post '/search' do 
+		params.symbolize_keys!
 		search_term = params[:keyword]
-		descrip_results = Hunt.where("description like ?", "%" + search_term + "%")
-		title_results = Hunt.where("title like ?", "%" + search_term + "%")
+		results = Hunt.where("description like ?", "%" + search_term + "%")
+		# title_results = Hunt.where("title like ?", "%" + search_term + "%")
+		
+		if results.length < 1
+			success = false
+		else
+			success = true
+		end
+		p success
+
 		resp = {
-			description_search: descrip_results,
-			title_search: title_results
+			results: results,
+			success: success
+			# title_search: title_results
 		}.to_json
 	end
 
@@ -125,7 +143,7 @@ class HuntController < ApplicationController
 
 	# route used to generate QR codes, save them, attach them to email, send to user, and then delete the saved PNG QR codes afterwards
 	# needs to get set up using session data
-	get '/:id/printcodes' do 
+	get '/:id/emailcodes' do 
 		# mailgun setup
 		mg_client = Mailgun::Client.new ''
 		mb_obj = Mailgun::MessageBuilder.new()
@@ -137,7 +155,7 @@ class HuntController < ApplicationController
 
 		@hunt = Hunt.find_by_id params[:id]
 		hints = @hunt[:hints]
-		num_str_arr = ["#{@hunt[:title]} - first hint!","#{@hunt[:title]} - second hint!","#{@hunt[:title]} - third hint!","#{@hunt[:title]} - fourth hint!","#{@hunt[:title]} - fifth hint!","#{@hunt[:title]} - sixth hint!","#{@hunt[:title]} - seventh hint!","#{@hunt[:title]} - eighth hint!","#{@hunt[:title]} - ninth hint!","#{@hunt[:title]} - tenth hint!"]
+		num_str_arr = ["#{@hunt[:title]} - #1","#{@hunt[:title]} - #2","#{@hunt[:title]} - #3","#{@hunt[:title]} - #4","#{@hunt[:title]} - #5","#{@hunt[:title]} - #6","#{@hunt[:title]} - #7","#{@hunt[:title]} - #8","#{@hunt[:title]} - #9","#{@hunt[:title]} - #10", "#{@hunt[:title]} - #11"]
 		inc = 0
 
 		hints.each do |value|
