@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'dotenv', '~> 2.1', '>= 2.1.1'
 gem 'pg', '0.21'
-gem 'sinatra'
+gem 'sinatra', '>= 2.0.2'
 gem 'sinatra-activerecord'
 gem 'json'
 gem 'pry'
